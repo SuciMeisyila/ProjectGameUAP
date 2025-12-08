@@ -94,3 +94,61 @@ int main() {
             while ((ch = getch()) != 'q' && ch != 'Q') { /* tunggu q */ }
             break;
         }
+
+        int ch = getch();
+
+        if (ch == 'q' || ch == 'Q') break;
+
+        if (ch == KEY_UP && cursorY > 0) cursorY--;
+        else if (ch == KEY_DOWN && cursorY < SIZE - 1) cursorY++;
+        else if (ch == KEY_LEFT && cursorX > 0) cursorX--;
+        else if (ch == KEY_RIGHT && cursorX < SIZE - 1) cursorX++;
+        else if (ch == 10 || ch == ' ') { // Enter atau Spasi
+            // jika sel sudah matched (permanent) abaikan
+            if (matched[cursorY][cursorX]) {
+                // do nothing
+            } else if (!revealed[cursorY][cursorX]) {
+                // jika belum dibuka
+                if (openCount == 0) {
+                    // buka kartu pertama
+                    ox1 = cursorX; oy1 = cursorY;
+                    revealed[oy1][ox1] = true;
+                    openCount = 1;
+                } else if (openCount == 1) {
+                    // jika pemain memilih koordinat yang sama dengan kartu pertama, abaikan
+                    if (ox1 == cursorX && oy1 == cursorY) {
+                        // tidak melakukan apa-apa, biarkan terbuka
+                    } else {
+                        // buka kartu kedua
+                        ox2 = cursorX; oy2 = cursorY;
+                        revealed[oy2][ox2] = true;
+                        openCount = 2;
+
+                        // gambar board dengan kedua kartu terbuka
+                        drawBoard(board, revealed, cursorX, cursorY, moves, matchedCount);
+                        napms(700); // delay 700ms
+
+                        // cek pasangan
+                        if (board[oy1][ox1] == board[oy2][ox2]) {
+                            // tandai matched permanent
+                            matched[oy1][ox1] = true;
+                            matched[oy2][ox2] = true;
+                            matchedCount += 2;
+                        } else {
+                            // sembunyikan kembali
+                            revealed[oy1][ox1] = false;
+                            revealed[oy2][ox2] = false;
+                        }
+                        openCount = 0;
+                        moves++;
+                    }
+                }
+            } else {
+                // jika sudah terbuka (tapi belum matched) dan user tekan lagi -> abaikan
+            }
+        }
+    }
+
+    endwin();
+    return 0;
+}
