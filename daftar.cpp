@@ -5,7 +5,6 @@
 #define SIZE 4
 #define TOTAL (SIZE * SIZE)
 
-// Untuk mengacak array sederhana
 void shuffleArray(int arr[], int n) {
     for (int i = n - 1; i > 0; i--) {
         int j = rand() % (i + 1);
@@ -21,7 +20,6 @@ void drawBoard(int board[SIZE][SIZE], bool revealed[SIZE][SIZE], int cursorX, in
     mvprintw(1, 0, "Gunakan panah untuk bergerak, Enter/Spasi untuk membuka, q untuk keluar");
     mvprintw(2, 0, "Moves: %d    Matched: %d/%d", moves, matchedCount, TOTAL);
 
-    // koordinat start
     int startY = 4;
     int startX = 2;
     for (int y = 0; y < SIZE; y++) {
@@ -34,7 +32,6 @@ void drawBoard(int board[SIZE][SIZE], bool revealed[SIZE][SIZE], int cursorX, in
             }
 
             if (revealed[y][x]) {
-                // gunakan width 2 untuk menjaga aligned
                 mvprintw(py, px, "%2d", board[y][x]);
             } else {
                 mvprintw(py, px, " *");
@@ -56,19 +53,16 @@ int main() {
     keypad(stdscr, TRUE);
     curs_set(0);
 
-    // Membuat daftar angka pasangan (2 kali masing-masing)
     int numbers[TOTAL];
     for (int i = 0; i < TOTAL; i++) {
-        numbers[i] = i / 2 + 1; // 1..(TOTAL/2)
+        numbers[i] = i / 2 + 1; 
     }
 
-    // Acak pasangan
     shuffleArray(numbers, TOTAL);
 
-    // Masukkan ke board SIZE x SIZE
     int board[SIZE][SIZE];
     bool revealed[SIZE][SIZE];
-    bool matched[SIZE][SIZE]; // track kartu yang sudah permanently matched
+    bool matched[SIZE][SIZE]; 
 
     for (int i = 0; i < SIZE; i++)
         for (int j = 0; j < SIZE; j++) {
@@ -98,44 +92,33 @@ int main() {
         int ch = getch();
 
         if (ch == 'q' || ch == 'Q') break;
-
+        
         if (ch == KEY_UP && cursorY > 0) cursorY--;
         else if (ch == KEY_DOWN && cursorY < SIZE - 1) cursorY++;
         else if (ch == KEY_LEFT && cursorX > 0) cursorX--;
         else if (ch == KEY_RIGHT && cursorX < SIZE - 1) cursorX++;
-        else if (ch == 10 || ch == ' ') { // Enter atau Spasi
-            // jika sel sudah matched (permanent) abaikan
+        else if (ch == 10 || ch == ' ') { 
             if (matched[cursorY][cursorX]) {
-                // do nothing
             } else if (!revealed[cursorY][cursorX]) {
-                // jika belum dibuka
                 if (openCount == 0) {
-                    // buka kartu pertama
                     ox1 = cursorX; oy1 = cursorY;
                     revealed[oy1][ox1] = true;
                     openCount = 1;
                 } else if (openCount == 1) {
-                    // jika pemain memilih koordinat yang sama dengan kartu pertama, abaikan
                     if (ox1 == cursorX && oy1 == cursorY) {
-                        // tidak melakukan apa-apa, biarkan terbuka
                     } else {
-                        // buka kartu kedua
                         ox2 = cursorX; oy2 = cursorY;
                         revealed[oy2][ox2] = true;
                         openCount = 2;
 
-                        // gambar board dengan kedua kartu terbuka
                         drawBoard(board, revealed, cursorX, cursorY, moves, matchedCount);
-                        napms(700); // delay 700ms
+                        napms(700); 
 
-                        // cek pasangan
                         if (board[oy1][ox1] == board[oy2][ox2]) {
-                            // tandai matched permanent
                             matched[oy1][ox1] = true;
                             matched[oy2][ox2] = true;
                             matchedCount += 2;
                         } else {
-                            // sembunyikan kembali
                             revealed[oy1][ox1] = false;
                             revealed[oy2][ox2] = false;
                         }
@@ -144,7 +127,6 @@ int main() {
                     }
                 }
             } else {
-                // jika sudah terbuka (tapi belum matched) dan user tekan lagi -> abaikan
             }
         }
     }
